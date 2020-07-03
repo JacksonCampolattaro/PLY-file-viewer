@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include <CGAL/Point_set_3.h>
+
 int main() {
 
   return EXIT_SUCCESS;
