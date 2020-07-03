@@ -19,10 +19,15 @@ endif()
 
 set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GTKMM gtkmm-3.0)
+include_directories(SYSTEM ${GTKMM_INCLUDE_DIRS})
+
 add_executable(viewer ${SOURCE_FILES})
 
 target_link_libraries(viewer
         CGAL::CGAL
         Magnum::GLContext
         Magnum::GL
-        Magnum::Magnum)
+        Magnum::Magnum
+        ${GTKMM_LIBRARIES})
