@@ -5,6 +5,8 @@
 #include <Magnum/GL/Framebuffer.h>
 #include <Magnum/GL/Renderer.h>
 
+#include "Viewer.h"
+
 using namespace Magnum;
 
 class MyApplication: public Gtk::GLArea {
@@ -79,6 +81,7 @@ void MyApplication::onUnrealize() {
 }
 
 int main(int argc, char** argv) {
+
   Platform::GLContext context{NoCreate, argc, argv};
 
   /* Create an application with a reasonable application ID */

@@ -1,5 +1,5 @@
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp Viewer.h)
 
 find_package(CGAL)
 
