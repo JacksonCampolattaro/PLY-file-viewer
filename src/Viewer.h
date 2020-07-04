@@ -19,73 +19,75 @@ template<class Point>
 class Viewer : public Gtk::GLArea {
 public:
 
-  explicit Viewer(Platform::GLContext &context, CGAL::Point_set_3<Point> points) :
-          _context(context), _points(points) {
+    explicit Viewer(Platform::GLContext &context, const CGAL::Point_set_3<Point> &points) :
+            _context(context), _points(points) {
 
-    /* Automatically re-render everything every time it needs to be drawn */
-    set_auto_render();
+        /* Automatically re-render everything every time it needs to be drawn */
+        set_auto_render();
 
-    /* Set size requests and scaling behavior */
-    set_hexpand();
-    set_vexpand();
-    set_halign(Gtk::ALIGN_FILL);
-    set_valign(Gtk::ALIGN_FILL);
-    set_size_request(800, 600);
+        /* Set size requests and scaling behavior */
+        set_hexpand();
+        set_vexpand();
+        set_halign(Gtk::ALIGN_FILL);
+        set_valign(Gtk::ALIGN_FILL);
+        set_size_request(800, 600);
 
-    /* Set desired OpenGL version */
-    set_required_version(4, 5);
+        /* Set desired OpenGL version */
+        set_required_version(4, 5);
 
-    /* Connect signals to their respective handlers */
-    signal_realize().connect(sigc::mem_fun(this, &Viewer::onRealize));
-    signal_render().connect(sigc::mem_fun(this, &Viewer::onRender));
-    signal_resize().connect(sigc::mem_fun(this, &Viewer::onResize));
-    signal_unrealize().connect(sigc::mem_fun(this, &Viewer::onUnrealize));
-  }
+        /* Connect signals to their respective handlers */
+        signal_realize().connect(sigc::mem_fun(this, &Viewer::onRealize));
+        signal_render().connect(sigc::mem_fun(this, &Viewer::onRender));
+        signal_resize().connect(sigc::mem_fun(this, &Viewer::onResize));
+        signal_unrealize().connect(sigc::mem_fun(this, &Viewer::onUnrealize));
+    }
 
 private:
 
-  void onRealize() {
+    void onRealize() {
 
-    /* Make sure the OpenGL context is current then configure it */
-    make_current();
-    _context.create();
+        /* Make sure the OpenGL context is current then configure it */
+        make_current();
+        _context.create();
 
-    /* TODO: Add your initialization code here */
-  }
+        /* TODO: Add your initialization code here */
 
-  bool onRender(const Glib::RefPtr<Gdk::GLContext> &context) {
-    /* Reset state to avoid Gtkmm affecting Magnum */
-    GL::Context::current().resetState(GL::Context::State::ExitExternal);
+        std::cout << _points.size() << " points" << std::endl;
+    }
 
-    /* Retrieve the ID of the relevant framebuffer */
-    GLint framebufferID;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &framebufferID);
+    bool onRender(const Glib::RefPtr<Gdk::GLContext> &context) {
+        /* Reset state to avoid Gtkmm affecting Magnum */
+        GL::Context::current().resetState(GL::Context::State::ExitExternal);
 
-    /* Attach Magnum's framebuffer manager to the framebuffer provided by Gtkmm */
-    auto gtkmmDefaultFramebuffer = GL::Framebuffer::wrap(framebufferID, {{},
-                                                                         {get_width(), get_height()}});
+        /* Retrieve the ID of the relevant framebuffer */
+        GLint framebufferID;
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &framebufferID);
 
-    /* Clear the frame */
-    gtkmmDefaultFramebuffer.clear(GL::FramebufferClear::Color);
+        /* Attach Magnum's framebuffer manager to the framebuffer provided by Gtkmm */
+        auto gtkmmDefaultFramebuffer = GL::Framebuffer::wrap(framebufferID, {{},
+                                                                             {get_width(), get_height()}});
 
-    /* TODO: Add your drawing code here */
+        /* Clear the frame */
+        gtkmmDefaultFramebuffer.clear(GL::FramebufferClear::Color);
 
-    /* Clean up Magnum state and back to Gtkmm */
-    GL::Context::current().resetState(GL::Context::State::EnterExternal);
-    return true;
-  }
+        /* TODO: Add your drawing code here */
 
-  void onResize(int width, int height) {
-    /* TODO: Add your window-resize handling code here */
-  }
+        /* Clean up Magnum state and back to Gtkmm */
+        GL::Context::current().resetState(GL::Context::State::EnterExternal);
+        return true;
+    }
 
-  void onUnrealize() {
-    /* TODO: Add your clean-up code here */
-  }
+    void onResize(int width, int height) {
+        /* TODO: Add your window-resize handling code here */
+    }
 
-  Platform::GLContext &_context;
+    void onUnrealize() {
+        /* TODO: Add your clean-up code here */
+    }
 
-  CGAL::Point_set_3<Point> _points;
+    Platform::GLContext &_context;
+
+    const CGAL::Point_set_3<Point> &_points;
 
 };
 

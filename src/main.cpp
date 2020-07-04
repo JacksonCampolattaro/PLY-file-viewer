@@ -22,7 +22,9 @@ typedef CGAL::Point_set_3<Point> Point_set;
 int main(int argc, char** argv) {
 
   // Load the file
-  std::ifstream stream("../data/archer_cleaned.ply");
+  std::ifstream stream("../../data/archer_cleaned.ply");
+  if (!stream)
+      std::cout << "Failed to load file" << std::endl;
   Point_set points;
   stream >> points;
 
