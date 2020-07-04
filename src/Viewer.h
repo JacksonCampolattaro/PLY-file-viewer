@@ -11,11 +11,16 @@
 #include <Magnum/GL/Framebuffer.h>
 #include <Magnum/GL/Renderer.h>
 
+#include <CGAL/Point_set_3.h>
+
 using namespace Magnum;
 
-class Viewer: public Gtk::GLArea {
+template<class Point>
+class Viewer : public Gtk::GLArea {
 public:
-  explicit Viewer(Platform::GLContext& context) : _context(context) {
+
+  explicit Viewer(Platform::GLContext &context, CGAL::Point_set_3<Point> points) :
+          _context(context), _points(points) {
 
     /* Automatically re-render everything every time it needs to be drawn */
     set_auto_render();
@@ -48,7 +53,7 @@ private:
     /* TODO: Add your initialization code here */
   }
 
-  bool onRender(const Glib::RefPtr<Gdk::GLContext>& context) {
+  bool onRender(const Glib::RefPtr<Gdk::GLContext> &context) {
     /* Reset state to avoid Gtkmm affecting Magnum */
     GL::Context::current().resetState(GL::Context::State::ExitExternal);
 
@@ -57,7 +62,8 @@ private:
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &framebufferID);
 
     /* Attach Magnum's framebuffer manager to the framebuffer provided by Gtkmm */
-    auto gtkmmDefaultFramebuffer = GL::Framebuffer::wrap(framebufferID, {{}, {get_width(), get_height()}});
+    auto gtkmmDefaultFramebuffer = GL::Framebuffer::wrap(framebufferID, {{},
+                                                                         {get_width(), get_height()}});
 
     /* Clear the frame */
     gtkmmDefaultFramebuffer.clear(GL::FramebufferClear::Color);
@@ -77,7 +83,10 @@ private:
     /* TODO: Add your clean-up code here */
   }
 
-  Platform::GLContext& _context;
+  Platform::GLContext &_context;
+
+  CGAL::Point_set_3<Point> _points;
+
 };
 
 #endif //PLY_FILE_VIEWER_VIEWER_H
