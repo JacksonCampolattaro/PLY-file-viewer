@@ -1,5 +1,5 @@
 
-set(SOURCE_FILES main.cpp Viewer.h)
+set(SOURCE_FILES main.cpp Viewer.h Camera.h)
 
 find_package(CGAL)
 
