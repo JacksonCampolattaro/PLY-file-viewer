@@ -3,7 +3,11 @@ set(SOURCE_FILES main.cpp Viewer.h)
 
 find_package(CGAL)
 
-find_package(Magnum REQUIRED GL)
+find_package(Magnum REQUIRED
+        GL
+        MeshTools
+        Primitives
+        Shaders)
 
 if(MAGNUM_TARGET_GLES AND NOT MAGNUM_TARGET_DESKTOP_GLES)
     find_package(Magnum REQUIRED EglContext)
@@ -30,4 +34,7 @@ target_link_libraries(viewer
         Magnum::GLContext
         Magnum::GL
         Magnum::Magnum
+        Magnum::MeshTools
+        Magnum::Primitives
+        Magnum::Shaders
         ${GTKMM_LIBRARIES})
