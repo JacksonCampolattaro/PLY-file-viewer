@@ -80,13 +80,13 @@ private:
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Mesh
-    _mesh = new GL::Mesh();
-    Trade::MeshData sphere = Primitives::icosphereSolid(3);
+    Trade::MeshData sphere = Primitives::icosphereSolid(0);
     GL::Buffer vertices;
     vertices.setData(MeshTools::interleave(sphere.positions3DAsArray(), sphere.normalsAsArray()));
     std::pair<Containers::Array<char>, MeshIndexType> compressed = MeshTools::compressIndices(sphere.indicesAsArray());
     GL::Buffer indices;
     indices.setData(compressed.first);
+    _mesh = new GL::Mesh();
     _mesh->setPrimitive(sphere.primitive())
             .setCount(sphere.indexCount())
             .addVertexBuffer(std::move(vertices), 0, Shaders::Phong::Position{},
@@ -94,14 +94,14 @@ private:
             .setIndexBuffer(std::move(indices), 0, compressed.second);
 
     // Color
-    _color = Color3::fromHsv({35.0_degf, 1.0f, 1.0f});
+    Color3 lightColor = Color3::fromHsv({35.0_degf, 1.0f, 1.0f});
 
     // Camera
     _camera = new Camera();
     _camera->shader.setLightPosition({7.0f, 5.0f, 2.5f})
             .setLightColor(Color3{1.0f})
-            .setDiffuseColor(_color)
-            .setAmbientColor(Color3::fromHsv({_color.hue(), 1.0f, 0.3f}));
+            .setDiffuseColor(lightColor)
+            .setAmbientColor(Color3::fromHsv({lightColor.hue(), 1.0f, 0.3f}));
   }
 
   bool onRender(const Glib::RefPtr<Gdk::GLContext> &context) {
@@ -123,10 +123,19 @@ private:
 
     /* TODO: Add your drawing code here */
 
-    _transformation =
-            Matrix4::rotationX(30.0_degf) * Matrix4::rotationY(40.0_degf);
+    for (Point &p : _points.points()) {
 
-    _camera->draw(*_mesh, _transformation, _color);
+      Color3 color = Color3::fromHsv({35.0_degf, 1.0f, 1.0f});
+
+      Matrix4 transformation =
+              Matrix4::translation({p.x(), p.y(), p.z()}) * Matrix4::scaling({0.05, 0.05, 0.05});
+      _camera->draw(*_mesh, transformation, color);
+    }
+
+//    _transformation =
+//            Matrix4::translation(Vector3::yAxis(1.0f));
+
+    //_camera->draw(*_mesh, _transformation, _color);
 
 //    GL::Mesh mesh;
 //    Shaders::Phong shader;
@@ -142,7 +151,7 @@ private:
     _camera->projection =
             Matrix4::perspectiveProjection(
                     35.0_degf, (float) width / (float) height, 0.01f, 100.0f) *
-            Matrix4::translation(Vector3::zAxis(-10.0f));
+            Matrix4::translation(Vector3::zAxis(-35.0f));
   }
 
   void onUnrealize() {
@@ -151,8 +160,6 @@ private:
 
   Platform::GLContext &_context;
 
-  Matrix4 _transformation;
-  Color3 _color;
   GL::Mesh *_mesh;
 
   Camera *_camera;
