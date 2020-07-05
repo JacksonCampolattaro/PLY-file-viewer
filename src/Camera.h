@@ -13,18 +13,14 @@
 using namespace Magnum;
 using namespace Magnum::Math::Literals;
 
-struct Camera {
+class Camera {
+
+public:
 
   Shaders::Phong shader;
   Matrix4 projection;
-  float aspectRatio;
 
-  void draw(GL::Mesh mesh, Matrix4 transformation, Color3 color) {
-
-    projection =
-            Matrix4::perspectiveProjection(
-                    35.0_degf, aspectRatio, 0.01f, 100.0f) *
-            Matrix4::translation(Vector3::zAxis(-10.0f));
+  void draw(GL::Mesh &mesh, Matrix4 &transformation, Color3 &color) {
 
     shader.setTransformationMatrix(transformation)
            .setNormalMatrix(transformation.normalMatrix())

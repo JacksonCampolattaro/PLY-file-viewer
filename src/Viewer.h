@@ -27,6 +27,8 @@
 
 #include <CGAL/Point_set_3.h>
 
+#include "Camera.h"
+
 using namespace Magnum;
 
 using namespace Magnum::Math::Literals;
@@ -94,9 +96,9 @@ private:
     // Color
     _color = Color3::fromHsv({35.0_degf, 1.0f, 1.0f});
 
-    // Shader
-    _shader = new Shaders::Phong();
-    _shader->setLightPosition({7.0f, 5.0f, 2.5f})
+    // Camera
+    _camera = new Camera();
+    _camera->shader.setLightPosition({7.0f, 5.0f, 2.5f})
             .setLightColor(Color3{1.0f})
             .setDiffuseColor(_color)
             .setAmbientColor(Color3::fromHsv({_color.hue(), 1.0f, 0.3f}));
@@ -121,24 +123,10 @@ private:
 
     /* TODO: Add your drawing code here */
 
-
-    std::cout << "Preparing primitive" << std::endl;
-
-
-
     _transformation =
             Matrix4::rotationX(30.0_degf) * Matrix4::rotationY(40.0_degf);
-    _projection =
-            Matrix4::perspectiveProjection(
-                    35.0_degf, _aspectRatio, 0.01f, 100.0f) *
-            Matrix4::translation(Vector3::zAxis(-10.0f));
 
-    _shader->setTransformationMatrix(_transformation)
-            .setNormalMatrix(_transformation.normalMatrix())
-            .setProjectionMatrix(_projection)
-            .draw(*_mesh);
-
-    std::cout << "Done" << std::endl;
+    _camera->draw(*_mesh, _transformation, _color);
 
 //    GL::Mesh mesh;
 //    Shaders::Phong shader;
@@ -151,7 +139,10 @@ private:
   }
 
   void onResize(int width, int height) {
-    _aspectRatio = (float) width / (float) height;
+    _camera->projection =
+            Matrix4::perspectiveProjection(
+                    35.0_degf, (float) width / (float) height, 0.01f, 100.0f) *
+            Matrix4::translation(Vector3::zAxis(-10.0f));
   }
 
   void onUnrealize() {
@@ -160,10 +151,11 @@ private:
 
   Platform::GLContext &_context;
 
-  Matrix4 _transformation, _projection;
+  Matrix4 _transformation;
   Color3 _color;
   GL::Mesh *_mesh;
-  Shaders::Phong *_shader;
+
+  Camera *_camera;
 
   float _aspectRatio = 1;
 
