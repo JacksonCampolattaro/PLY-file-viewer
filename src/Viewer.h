@@ -125,7 +125,8 @@ private:
 
     for (Point &p : _points.points()) {
 
-      Color3 color = Color3::fromHsv({35.0_degf, 1.0f, 1.0f});
+      //Color3 color = Color3::fromHsv({35.0_degf, 1.0f, 1.0f});
+      Color3 color = Color3::fromSrgb({0.5, 0.5, 1});
 
       Matrix4 transformation =
               Matrix4::translation({p.x(), p.y(), p.z()}) * Matrix4::scaling({0.05, 0.05, 0.05});

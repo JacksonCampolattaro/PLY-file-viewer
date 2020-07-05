@@ -23,9 +23,10 @@ public:
   void draw(GL::Mesh &mesh, Matrix4 &transformation, Color3 &color) {
 
     shader.setTransformationMatrix(transformation)
-           .setNormalMatrix(transformation.normalMatrix())
-           .setProjectionMatrix(projection)
-           .draw(mesh);
+            .setNormalMatrix(transformation.normalMatrix())
+            .setDiffuseColor(color)
+            .setProjectionMatrix(projection)
+            .draw(mesh);
   }
 };
 

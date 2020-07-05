@@ -28,6 +28,11 @@ int main(int argc, char** argv) {
   Point_set points;
   stream >> points;
 
+  for (auto property : points.properties()) {
+    std::cout << property << ", ";
+  }
+  std::cout << std::endl;
+
 
   auto app = Gtk::Application::create(argc, argv, "JacksonCampolattaro.PLY-file-viewer");
 
