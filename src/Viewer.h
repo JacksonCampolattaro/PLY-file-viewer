@@ -166,8 +166,6 @@ private:
 
     Camera *_camera;
 
-    float _aspectRatio = 1;
-
     const CGAL::Point_set_3<Point> &_points;
 
 };
