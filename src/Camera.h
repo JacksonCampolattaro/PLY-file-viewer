@@ -20,12 +20,9 @@ public:
   Shaders::Phong shader;
   Matrix4 projection;
 
-  void draw(GL::Mesh &mesh, Matrix4 &transformation, Color3 &color) {
+  void draw(GL::Mesh &mesh) {
 
-    shader.setTransformationMatrix(transformation)
-            .setNormalMatrix(transformation.normalMatrix())
-            .setDiffuseColor(color)
-            .setProjectionMatrix(projection)
+    shader.setProjectionMatrix(projection)
             .draw(mesh);
   }
 };

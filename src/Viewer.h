@@ -34,6 +34,7 @@ using namespace Magnum::Math::Literals;
 
 struct SphereInstanceData {
   Matrix4 transformationMatrix;
+  Matrix3x3 normalMatrix;
   Color3 color;
 };
 
@@ -76,7 +77,8 @@ private:
     GL::Renderer::enable(GL::Renderer::Feature::DepthTest);
     GL::Renderer::enable(GL::Renderer::Feature::FaceCulling);
 
-    std::cout << _points.size() << " points" << std::endl;
+    size_t numPoints = _points.size();
+    std::cout << "Loaded " << numPoints << " points" << std::endl;
 
     // Initial Configuration
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,11 +86,33 @@ private:
     // Mesh
     _sphereMesh = MeshTools::compile(Primitives::icosphereSolid(0));
 
+    // Instanced rendering
+    _sphereInstanceData = Containers::Array<SphereInstanceData>{Containers::NoInit, _points.size()};
+    size_t i = 0;
+    for (Point &p : _points.points()) {
+
+      _sphereInstanceData[i].transformationMatrix =
+              Matrix4::translation({p[0], p[1], p[2]}) *
+              Matrix4::scaling(Vector3{0.05});
+      _sphereInstanceData[i].normalMatrix =
+              _sphereInstanceData[i].transformationMatrix.normalMatrix();
+      _sphereInstanceData[i].color =
+              Color3{0.9};
+
+      i++;
+    }
+    _sphereInstanceBuffer = GL::Buffer{};
+    _sphereMesh.addVertexBufferInstanced(_sphereInstanceBuffer, 1, 0,
+                                         Shaders::Phong::TransformationMatrix{},
+                                         Shaders::Phong::NormalMatrix{},
+                                         Shaders::Phong::Color3{});
+    _sphereMesh.setInstanceCount(_sphereInstanceData.size());
+
     // Camera
     _camera = new Camera();
-    _camera->shader.setLightPosition({7.0f, 5.0f, 2.5f})
-            .setLightColor(Color3{1.0f})
-            .setAmbientColor(Color3{0.4f});
+    _camera->shader = Shaders::Phong{
+            Shaders::Phong::Flag::VertexColor |
+            Shaders::Phong::Flag::InstancedTransformation};
   }
 
   bool onRender(const Glib::RefPtr<Gdk::GLContext> &context) {
@@ -110,15 +134,16 @@ private:
 
     /* TODO: Add your drawing code here */
 
-    for (Point &p : _points.points()) {
-
-      //Color3 color = Color3::fromHsv({35.0_degf, 1.0f, 1.0f});
-      Color3 color = Color3::fromSrgb({0.9, 0.9, 0.9});
-
-      Matrix4 transformation =
-              Matrix4::translation({p[0], p[1], p[2]}) * Matrix4::scaling({0.05, 0.05, 0.05});
-      _camera->draw(_sphereMesh, transformation, color);
-    }
+//    for (Point &p : _points.points()) {
+//
+//      Color3 color = Color3::fromSrgb({0.9, 0.9, 0.9});
+//
+//      Matrix4 transformation =
+//              Matrix4::translation({p[0], p[1], p[2]}) * Matrix4::scaling({0.05, 0.05, 0.05});
+//      _camera->draw(_sphereMesh, transformation, color);
+//    }
+    _sphereInstanceBuffer.setData(_sphereInstanceData, GL::BufferUsage::DynamicDraw);
+    _camera->draw(_sphereMesh);
 
     /* Clean up Magnum state and back to Gtkmm */
     GL::Context::current().resetState(GL::Context::State::EnterExternal);
@@ -139,8 +164,8 @@ private:
   Platform::GLContext &_context;
 
   GL::Mesh _sphereMesh{NoCreate};
-  Containers::Array<SphereInstanceData> _sphereInstanceData;
   GL::Buffer _sphereInstanceBuffer{NoCreate};
+  Containers::Array<SphereInstanceData> _sphereInstanceData;
   Camera *_camera;
 
   const CGAL::Point_set_3<Point> &_points;
