@@ -84,15 +84,11 @@ private:
     // Mesh
     _sphereMesh = MeshTools::compile(Primitives::icosphereSolid(0));
 
-    // Color
-    Color3 lightColor = Color3::fromHsv({35.0_degf, 1.0f, 1.0f});
-
     // Camera
     _camera = new Camera();
     _camera->shader.setLightPosition({7.0f, 5.0f, 2.5f})
             .setLightColor(Color3{1.0f})
-            .setDiffuseColor(lightColor)
-            .setAmbientColor(Color3::fromHsv({lightColor.hue(), 1.0f, 0.3f}));
+            .setAmbientColor(Color3{0.4f});
   }
 
   bool onRender(const Glib::RefPtr<Gdk::GLContext> &context) {
