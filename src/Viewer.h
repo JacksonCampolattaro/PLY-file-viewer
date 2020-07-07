@@ -84,7 +84,7 @@ private:
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Mesh
-    _sphereMesh = MeshTools::compile(Primitives::icosphereSolid(0));
+    _sphereMesh = MeshTools::compile(Primitives::icosphereSolid(1));
 
     // Instanced rendering
     _sphereInstanceData = Containers::Array<SphereInstanceData>{Containers::NoInit, _points.size()};
@@ -93,7 +93,7 @@ private:
 
       _sphereInstanceData[i].transformationMatrix =
               Matrix4::translation({p[0], p[1], p[2]}) *
-              Matrix4::scaling(Vector3{0.05});
+              Matrix4::scaling(Vector3{0.005});
       _sphereInstanceData[i].normalMatrix =
               _sphereInstanceData[i].transformationMatrix.normalMatrix();
       _sphereInstanceData[i].color =
@@ -120,7 +120,6 @@ private:
     /* Reset state to avoid Gtkmm affecting Magnum */
     GL::Context::current().resetState(GL::Context::State::ExitExternal);
 
-
     /* Retrieve the ID of the relevant framebuffer */
     GLint framebufferID;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &framebufferID);
@@ -134,16 +133,16 @@ private:
 
     /* TODO: Add your drawing code here */
 
-//    for (Point &p : _points.points()) {
-//
-//      Color3 color = Color3::fromSrgb({0.9, 0.9, 0.9});
-//
-//      Matrix4 transformation =
-//              Matrix4::translation({p[0], p[1], p[2]}) * Matrix4::scaling({0.05, 0.05, 0.05});
-//      _camera->draw(_sphereMesh, transformation, color);
-//    }
+    _camera->projection =
+            Matrix4::perspectiveProjection(
+                    35.0_degf, _aspectRatio, 0.01f, 100.0f) *
+            Matrix4::translation(Vector3::zAxis(-35.0f + _zoom));
+
     _sphereInstanceBuffer.setData(_sphereInstanceData, GL::BufferUsage::DynamicDraw);
     _camera->draw(_sphereMesh);
+
+    _zoom += 0.01;
+    queue_render();
 
     /* Clean up Magnum state and back to Gtkmm */
     GL::Context::current().resetState(GL::Context::State::EnterExternal);
@@ -151,10 +150,7 @@ private:
   }
 
   void onResize(int width, int height) {
-    _camera->projection =
-            Matrix4::perspectiveProjection(
-                    35.0_degf, (float) width / (float) height, 0.01f, 100.0f) *
-            Matrix4::translation(Vector3::zAxis(-35.0f));
+    _aspectRatio = (float) width / (float) height;
   }
 
   void onUnrealize() {
@@ -167,6 +163,9 @@ private:
   GL::Buffer _sphereInstanceBuffer{NoCreate};
   Containers::Array<SphereInstanceData> _sphereInstanceData;
   Camera *_camera;
+
+  float _aspectRatio;
+  float _zoom = 0;
 
   const CGAL::Point_set_3<Point> &_points;
 
